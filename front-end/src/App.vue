@@ -19,5 +19,8 @@ export default {
      box-sizing: border-box;
      margin: 0;
      padding: 0;
+     --main:#e0e5ec;
+     --vice1:#afb3b8;
+     --vice2:#ffffff;
 }
 </style>

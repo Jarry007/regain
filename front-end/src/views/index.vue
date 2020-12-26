@@ -36,6 +36,10 @@
     </a-modal>
 
     <a-table :columns="columns" :data-source="list">
+      <template #page="{ record }">
+        <span>{{ record.page_url || "---" }}</span>
+        <a-button type="link" @click="toView(record)">查看</a-button>
+      </template>
       <template #handler="{ record }">
         <a-popconfirm @confirm="deleteIt(record)" title="您确定删除该文件吗？">
           <a-button type="link">删除</a-button>
@@ -48,8 +52,9 @@
 <script>
 import { message } from "ant-design-vue";
 import { onMounted, reactive, ref, toRefs } from "vue";
-import { getFileList,addFiles } from "@/api/list";
+import { getFileList, addFiles, deleteFiles } from "@/api/list";
 import { getToken } from "@/utils/util";
+import { useRouter } from 'vue-router';
 
 export default {
   name: "Index",
@@ -62,7 +67,11 @@ export default {
       form: {},
       columns: [
         { title: "名称", dataIndex: "name" },
-        { title: "页面地址", dataIndex: "page_url" },
+        {
+          title: "页面地址",
+          dataIndex: "page_url",
+          slots: { customRender: "page" },
+        },
         { title: "二维码链接", dataIndex: "code_url" },
         { title: "备注", dataIndex: "remark" },
         { title: "创建时间", dataIndex: "create_time" },
@@ -86,10 +95,10 @@ export default {
         // console.log("ss");
         await addFroms.value.validate();
         console.log(datas.form);
-        await addFiles(datas.form)
-        getList()
-        addNew()
-        message.success('添加成功')
+        await addFiles(datas.form);
+        getList();
+        addNew();
+        message.success("添加成功");
       } catch (error) {
         message.error(error.msg || "添加失败");
       }
@@ -113,13 +122,13 @@ export default {
       fileList: [],
       headers: {
         // "Content-Type": "multipart/form-data",
-        "Accept": "*/*",
+        Accept: "*/*",
         Authorization: getToken(),
       },
       uploadUrl: "http://localhost:5000/upload",
     });
     const fileChange = (e) => {
-      console.log('文件回调',e)
+      console.log("文件回调", e);
       if (e.file.status === "done") {
         datas.form.code_url = e.file.response.data || null;
       }
@@ -128,7 +137,27 @@ export default {
       }
       files.fileList = e.fileList;
     };
+
+    const deleteIt = async (row) => {
+      try {
+        await deleteFiles(row);
+        getList();
+        message.success("删除成功");
+      } catch (error) {
+        message.error(error.msg || "删除失败");
+      }
+    };
+
+    const router = useRouter()
+    const toView = (row)=>{
+      router.push({
+        path:'/code',
+        query:{code:row.code_url}
+      })
+    }
     return {
+      toView,
+      deleteIt,
       ...toRefs(datas),
       addOk,
       showAdd,

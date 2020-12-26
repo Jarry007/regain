@@ -66,11 +66,32 @@ const uploadFile = async (ctx) => {
     }
 }
 
-const deleList = async (ctx)=>{
-    const {uuid} = ctx.request.body
+const deleList = async (ctx) => {
+    console.log('get-body',ctx.request.body)
+    const { uuid } = ctx.request.body //数据的UUID
     
+    try {
+        await ListModel.destroy({
+            where: {
+                uuid: uuid
+            }
+        })
+        ctx.body = {
+            code: 200,
+            msg: '成功'
+        }
+
+    } catch (error) {
+        ctx.body = {
+            code: 500,
+            msg: error.message || '错误'
+        }
+    }
+
+
+
 }
 
 module.exports = {
-    addList, getList, uploadFile
+    addList, getList, uploadFile,deleList
 }
