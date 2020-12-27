@@ -7,12 +7,15 @@
       <div class="name">单款展示</div>
 
       <p></p>
-      <p><span class="neum-btn" @click="downloadIt">点此下载</span></p>
+      <p><span v-if="isBrowser" class="neum-btn" @click="downloadIt">点此下载</span> <span v-else>使用浏览器扫码，或者点击右上角选择浏览器打开</span></p>
     </div>
 
     <div v-else>
       <div class="neum-card" v-for="i in list" :key="i.id">
-          <div></div>
+        <div>{{ i.name }}</div>
+
+        <div class="neum-btn mini" @click="toOne(i)">——></div>
+
       </div>
     </div>
   </div>
@@ -21,47 +24,52 @@
 <script>
 import { onBeforeMount, onMounted, onUpdated, ref } from "vue";
 import { useRoute } from "vue-router";
-import { isMobile } from "@/utils/util";
-import { getListNoAuthor} from "@/api/list";
+import { isMobile,isWeXin } from "@/utils/util";
+import { getListNoAuthor } from "@/api/list";
 import QRcode from "qrcode";
-import {message} from 'ant-design-vue'
-const topic = 'http://localhost:5000'
+import { message } from "ant-design-vue";
+const topic = "http://localhost:5000";
 // import avatar from "@/assets/1212.jpg";
 export default {
   setup() {
     const route = useRoute();
-
+    
     let codeUrl = ref("");
     let mobile = ref(false);
-
+    let isBrowser = ref(false)
+    const showList = () => {
+      if (route.query.code || codeUrl.value) {
+        if(route.query.code){
+          codeUrl.value= route.query.code
+        }
+      } else {
+        getList();
+      }
+    };
     onBeforeMount(() => {
       mobile.value = isMobile();
+      isBrowser.value = !isWeXin()
     });
 
     onMounted(() => {
-      if (route.query.code) {
-        codeUrl.value = route.query.code;
-      } else {
-          console.log('jiazai')
-        getList();
-      }
+      showList();
     });
     onUpdated(() => {
       if (codeUrl.value) newQr(codeUrl.value);
     });
-    
-    let page = ref(1)
-    let pageSize = ref(10) 
-    let list = ref([])
+
+    let page = ref(1);
+    let pageSize = ref(10);
+    let list = ref([]);
     const getList = async () => {
-     const params = {
+      const params = {
         page: page.value,
         pageSize: pageSize.value,
       };
       try {
         const list_ = await getListNoAuthor(params);
-        console.log('list',list_)
-        list.value = list_.data
+        // console.log("list", list_);
+        list.value = list_.data;
       } catch (error) {
         message.error(error.msg || "获取列表失败");
       }
@@ -75,19 +83,27 @@ export default {
       });
     };
 
-    const downloadIt = ()=>{
-        console.log('下载')
-        const url = `${topic}/download/${codeUrl.value}`
-        const aTag = document.createElement("a")
-        aTag.download = 'xx'
-        aTag.href = url
-        aTag.click()
+    const downloadIt = () => {
+      console.log("下载");
+      const url = `${topic}/download/${codeUrl.value}`;
+      const aTag = document.createElement("a");
+      aTag.download = "xx";
+      aTag.href = url;
+      aTag.click();
+    };
+    // const router = useRouter()
+    const toOne = (row)=>{
+      codeUrl.value = row.code_url
+      showList()
+   
     }
     return {
+      isBrowser,
+      toOne,
       codeUrl,
       mobile,
       downloadIt,
-      list
+      list,
       //  avatar_
     };
   },
@@ -97,18 +113,17 @@ export default {
 <style scoped>
 .mobile {
   height: 100%;
-  padding-top: 30px;
+  padding-top: 50px;
   width: 100%;
   box-sizing: border-box;
-  padding: 0;
   margin: 0;
   background: var(--main);
-   text-align: center;
+  text-align: center;
 }
 .pc {
   text-align: center;
   background: var(--main);
-  padding-top: 30px;
+  padding-top: 50px;
   margin: 0;
   width: 375px;
   height: 660px;
@@ -159,13 +174,29 @@ export default {
 }
 .neum-icon .canvas {
   margin: 10px;
-  z-index: -1;
-  position: relative;
 }
 
-.name{
-    font-weight: 700;
-    font-size: 1.2rem;
-    color: #222;
+.name {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #222;
+  margin: 40px auto;
+}
+
+.neum-card {
+  width: 90%;
+  margin-bottom: 30px;
+  margin-left: 5%;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+}
+
+.mini {
+  width: 70px;
+  margin-left: auto;
+  height: 40px;
+  line-height: 40px;
 }
 </style>
