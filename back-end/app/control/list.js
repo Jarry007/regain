@@ -92,6 +92,11 @@ const deleList = async (ctx) => {
 
 }
 
+
+const getError = async(ctx)=>{
+    console.log('body',ctx.request.body)
+}
+
 module.exports = {
-    addList, getList, uploadFile,deleList
+    addList, getList, uploadFile,deleList,getError
 }

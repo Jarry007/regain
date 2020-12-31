@@ -7,7 +7,21 @@
       <div class="name">单款展示</div>
 
       <p></p>
-      <p><span v-if="isBrowser" class="neum-btn" @click="downloadIt">点此下载</span> <span v-else>使用浏览器扫码，或者点击右上角选择浏览器打开</span></p>
+      <p>
+        <span v-if="isBrowser" class="neum-btn" @click="downloadIt"
+          >点此下载</span
+        >
+        <span v-else>使用浏览器扫码，或者点击右上角选择浏览器打开</span>
+      </p>
+
+      <div style="display:flex">
+<div class="cricle-btn">a</div> <div class="cricle-btn active">b</div> <div class="cricle-btn">c</div>
+      </div>
+      
+
+      <div >
+        <input type='range'/>
+      </div>
     </div>
 
     <div v-else>
@@ -15,7 +29,6 @@
         <div>{{ i.name }}</div>
 
         <div class="neum-btn mini" @click="toOne(i)">——></div>
-
       </div>
     </div>
   </div>
@@ -24,7 +37,7 @@
 <script>
 import { onBeforeMount, onMounted, onUpdated, ref } from "vue";
 import { useRoute } from "vue-router";
-import { isMobile,isWeXin } from "@/utils/util";
+import { isMobile, isWeXin } from "@/utils/util";
 import { getListNoAuthor } from "@/api/list";
 import QRcode from "qrcode";
 import { message } from "ant-design-vue";
@@ -33,14 +46,14 @@ const topic = "http://localhost:5000";
 export default {
   setup() {
     const route = useRoute();
-    
+
     let codeUrl = ref("");
     let mobile = ref(false);
-    let isBrowser = ref(false)
+    let isBrowser = ref(false);
     const showList = () => {
       if (route.query.code || codeUrl.value) {
-        if(route.query.code){
-          codeUrl.value= route.query.code
+        if (route.query.code) {
+          codeUrl.value = route.query.code;
         }
       } else {
         getList();
@@ -48,7 +61,7 @@ export default {
     };
     onBeforeMount(() => {
       mobile.value = isMobile();
-      isBrowser.value = !isWeXin()
+      isBrowser.value = !isWeXin();
     });
 
     onMounted(() => {
@@ -68,7 +81,7 @@ export default {
       };
       try {
         const list_ = await getListNoAuthor(params);
-        // console.log("list", list_);
+
         list.value = list_.data;
       } catch (error) {
         message.error(error.msg || "获取列表失败");
@@ -92,11 +105,10 @@ export default {
       aTag.click();
     };
     // const router = useRouter()
-    const toOne = (row)=>{
-      codeUrl.value = row.code_url
-      showList()
-   
-    }
+    const toOne = (row) => {
+      codeUrl.value = row.code_url;
+      showList();
+    };
     return {
       isBrowser,
       toOne,
@@ -179,7 +191,8 @@ export default {
 .name {
   font-weight: 700;
   font-size: 1.2rem;
-  color: #222;
+  /* color: #222; */
+  color: #5060ee;
   margin: 40px auto;
 }
 
@@ -199,4 +212,34 @@ export default {
   height: 40px;
   line-height: 40px;
 }
+.cricle-btn {
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin: 0 auto;
+  width: 50px;
+  height: 50px;
+  color: #fff;
+  border-radius: 5px;
+  background: linear-gradient(145deg, #5667ff, #4856d6);
+  box-shadow: 3px 3px 10px #4452ca, -3px -3px 10px var(--vice2);
+}
+.cricle-btn.active{
+  background: linear-gradient(145deg, #4856d6, #5667ff);
+  box-shadow: 3px 3px 10px #4452ca, -3px -3px 10px var(--vice2);
+}
+/* .cricle-btn::after{
+  content: '';
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #4856d6, #5667ff);
+  box-shadow:inset 3px 3px 10px #4452ca, inset -3px -3px 10px #5c6eff;
+} */
 </style>

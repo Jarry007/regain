@@ -3,7 +3,7 @@ import { getToken } from './util'
 import store from '@/store'
 
 const service = axios.create({
-    baseURL:'http://localhost:5000',
+    baseURL:'http://192.168.2.199:5000',
     timeout: 8000
 })
 

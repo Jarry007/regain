@@ -8,6 +8,8 @@ router.post('/login',loginCtrl.login)
 router.post('/register',loginCtrl.register)
 router.get('/noauthor-list',listCtrl.getList)
 
+router.get('/error',listCtrl.getError)
+
 router.get('/get-list',token.checkToken,listCtrl.getList)
 router.post('/add-list',token.checkToken,listCtrl.addList)
 router.post('/upload',token.checkToken,listCtrl.uploadFile)
